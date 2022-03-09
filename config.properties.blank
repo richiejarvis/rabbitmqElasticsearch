@@ -1,0 +1,15 @@
+# Speedcamera Subscriber Properties file
+amqp.host=
+amqp.port=
+amqp.user=
+amqp.pass=
+amqp.queue=
+amqp.vhost=
+
+es.host=
+es.port=
+es.user=
+es.password=
+
+
+
