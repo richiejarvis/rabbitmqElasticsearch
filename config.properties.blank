@@ -10,6 +10,7 @@ es.host=
 es.port=
 es.user=
 es.password=
+es.index=
 
 
 

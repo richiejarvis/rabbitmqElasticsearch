@@ -79,7 +79,7 @@ public class rabbitmqSpeedcam {
     private static int sendToElasticsearch(String message) throws Exception {
 
         URL url = new URL("http://" + props.getProperty("es.host") + ":" + props.getProperty("es.port") + "/"
-                + props.getProperty("channel") + "/_doc/");
+                + props.getProperty("es.index") + "/_doc/");
         HttpURLConnection myURLConnection = (HttpURLConnection) url.openConnection();
 
         String userCredentials = props.getProperty("es.user") + ":" + props.getProperty("es.password");
