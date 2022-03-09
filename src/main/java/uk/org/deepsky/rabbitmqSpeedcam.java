@@ -20,18 +20,15 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
-
-
 public class rabbitmqSpeedcam {
     static Properties props = new Properties();
+
     public static void main(String[] args) throws KeyManagementException, NoSuchAlgorithmException {
-  
-        try(InputStream configStream = new FileInputStream("config.properties"))
-        {
+
+        try (InputStream configStream = new FileInputStream("config.properties")) {
             props.load(configStream);
 
-        } catch (IOException ex)
-        {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
         ConnectionFactory connfac = new ConnectionFactory();
@@ -45,32 +42,30 @@ public class rabbitmqSpeedcam {
             Connection amqpCon = connfac.newConnection();
             Channel channel = amqpCon.createChannel();
             boolean autoAck = false;
-channel.basicConsume(props.getProperty("amqp.queue"), autoAck, "myConsumerTag",
-     new DefaultConsumer(channel) {
-         @Override
-         public void handleDelivery(String consumerTag,
-                                    Envelope envelope,
-                                    AMQP.BasicProperties properties,
-                                    byte[] body)
-             throws IOException
-         {
-            //  String routingKey = envelope.getRoutingKey();
-            //  String contentType = properties.getContentType();
-             long deliveryTag = envelope.getDeliveryTag();
-             
-             try {
-                int responseCode = sendToElasticsearch(new String(body, "UTF-8")); 
-                if ( responseCode == 200 || responseCode == 201){
-                    channel.basicAck(deliveryTag, false);
-                }
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            channel.basicConsume(props.getProperty("amqp.queue"), autoAck, "myConsumerTag",
+                    new DefaultConsumer(channel) {
+                        @Override
+                        public void handleDelivery(String consumerTag,
+                                Envelope envelope,
+                                AMQP.BasicProperties properties,
+                                byte[] body)
+                                throws IOException {
+                            // String routingKey = envelope.getRoutingKey();
+                            // String contentType = properties.getContentType();
+                            long deliveryTag = envelope.getDeliveryTag();
 
-         }
-     });
+                            try {
+                                int responseCode = sendToElasticsearch(new String(body, "UTF-8"));
+                                if (responseCode == 200 || responseCode == 201) {
+                                    channel.basicAck(deliveryTag, false);
+                                }
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
 
+                        }
+                    });
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -83,7 +78,8 @@ channel.basicConsume(props.getProperty("amqp.queue"), autoAck, "myConsumerTag",
 
     private static int sendToElasticsearch(String message) throws Exception {
 
-        URL url = new URL("http://" + props.getProperty("es.host") + ":" + props.getProperty("es.port") + "/" + props.getProperty("channel") + "/_doc/");
+        URL url = new URL("http://" + props.getProperty("es.host") + ":" + props.getProperty("es.port") + "/"
+                + props.getProperty("channel") + "/_doc/");
         HttpURLConnection myURLConnection = (HttpURLConnection) url.openConnection();
 
         String userCredentials = props.getProperty("es.user") + ":" + props.getProperty("es.password");
@@ -108,4 +104,3 @@ channel.basicConsume(props.getProperty("amqp.queue"), autoAck, "myConsumerTag",
     }
 
 }
-
