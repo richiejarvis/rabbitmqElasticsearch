@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.org.deepsky</groupId>
-    <artifactId>rabbitmqSpeedcam</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>rabbitmqElasticsearch</artifactId>
+    <version>0.2-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -34,7 +34,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>uk.org.deepsky.rabbitmqSpeedcam</mainClass>
+                            <mainClass>uk.org.deepsky.rabbitmqElasticsearch</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

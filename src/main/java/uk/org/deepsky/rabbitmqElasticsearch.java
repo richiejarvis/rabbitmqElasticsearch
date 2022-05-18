@@ -20,9 +20,9 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
-public class rabbitmqSpeedcam {
+public class rabbitmqElasticsearch {
     static Properties props = new Properties();
-
+    static boolean debug = false;
     public static void main(String[] args) throws KeyManagementException, NoSuchAlgorithmException {
 
         try (InputStream configStream = new FileInputStream("config.properties")) {
@@ -31,6 +31,10 @@ public class rabbitmqSpeedcam {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        if (props.getProperty("debug").toLowerCase().equals("true")) {
+            System.out.println("Debug Mode: " + props.getProperty("debug"));
+            debug = true;
+        };
         ConnectionFactory connfac = new ConnectionFactory();
         connfac.setHost(props.getProperty("amqp.host"));
         connfac.setPort(Integer.parseInt(props.getProperty("amqp.port")));
@@ -57,13 +61,20 @@ public class rabbitmqSpeedcam {
                             try {
                                 int responseCode = sendToElasticsearch(new String(body, "UTF-8"));
                                 if (responseCode == 200 || responseCode == 201) {
+                                    debug("\nSending AMQP ACK ");
+                                    channel.basicAck(deliveryTag, true);
+                                } else {
+                                    debug("\nSending AMQP NACK ");
                                     channel.basicAck(deliveryTag, false);
+
                                 }
+                                System.out.println("Elasticsearch Index:"+ props.getProperty("es.index") + " Response:" + responseCode + " ");
+
                             } catch (Exception e) {
-                                // TODO Auto-generated catch block
+                                channel.basicAck(deliveryTag, false);
+                                debug(e.getMessage());
                                 e.printStackTrace();
                             }
-
                         }
                     });
 
@@ -96,11 +107,15 @@ public class rabbitmqSpeedcam {
 
         OutputStream stream = myURLConnection.getOutputStream();
         stream.write(out);
-
-        System.out.println(myURLConnection.getResponseCode() + " " + myURLConnection.getResponseMessage());
         myURLConnection.disconnect();
+        debug("JSON:"+ new String(out));
         return myURLConnection.getResponseCode();
 
     }
 
+
+    private static void debug(String message){
+        if (debug) System.out.print(message);
+
+    }
 }
