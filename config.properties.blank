@@ -1,4 +1,4 @@
-# Speedcamera Subscriber Properties file
+# Consumer Properties file
 amqp.host=
 amqp.port=
 amqp.user=
